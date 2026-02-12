@@ -423,7 +423,12 @@ def _zwischen_info_listen(kstatus: dict[int, dict[int, list[int]]], farbe: int) 
                                 schachliste.append(sorted(fsl + [l]))
                                 schach = True
                             else:
-                                fesselliste[fsf] = fsl
+                                if fsf in fesselliste:
+                                    exfsl = fesselliste[fsf].copy()
+                                    neufsl: list[int] = list(set.intersection(*(set(l) for l in [exfsl, fsl])))
+                                    fesselliste[fsf] = neufsl
+                                else:
+                                    fesselliste[fsf] = fsl
                                 break
                         else:
                             if schach:
@@ -463,7 +468,12 @@ def _zwischen_info_listen(kstatus: dict[int, dict[int, list[int]]], farbe: int) 
                                 schachliste.append(sorted(fsl + [t]))
                                 schach = True
                             else:
-                                fesselliste[fsf] = fsl
+                                if fsf in fesselliste:
+                                    exfsl = fesselliste[fsf].copy()
+                                    neufsl: list[int] = list(set.intersection(*(set(l) for l in [exfsl, fsl])))
+                                    fesselliste[fsf] = neufsl
+                                else:
+                                    fesselliste[fsf] = fsl
                                 break
                         else:
                             if schach:
@@ -503,7 +513,12 @@ def _zwischen_info_listen(kstatus: dict[int, dict[int, list[int]]], farbe: int) 
                                 schachliste.append(sorted(fsl + [d]))
                                 schach = True
                             else:
-                                fesselliste[fsf] = fsl
+                                if fsf in fesselliste:
+                                    exfsl = fesselliste[fsf].copy()
+                                    neufsl: list[int] = list(set.intersection(*(set(l) for l in [exfsl, fsl])))
+                                    fesselliste[fsf] = neufsl
+                                else:
+                                    fesselliste[fsf] = fsl
                                 break
                         else:
                             if schach:
@@ -556,17 +571,18 @@ def figurfelder_final(kstatus: dict[int, dict[int, list[int]]], ep: list[int], r
                     continue
                 figurfelderliste.remove(feld)
                 if feld-startfeld == 10:
-                    if feld+20 in minenfelder:
+                    if feld+20 in figurfelderliste:
                         figurfelderliste.remove(feld+20)
                 elif feld-startfeld == -10:
-                    if feld-20 in minenfelder:
+                    if feld-20 in figurfelderliste:
                         figurfelderliste.remove(feld-20)
     else:
         if startfeld in fesselliste:
             ff = figurfelderliste.copy()
             for feld in ff:
                 if feld not in fesselliste[startfeld]:
-                    figurfelderliste.remove(feld)
+                    if feld in figurfelderliste:
+                        figurfelderliste.remove(feld)
         if len(schachliste) > 0:
             ss = list(set.intersection(*(set(l) for l in schachliste)))
             if len(ss) > 0:
@@ -574,7 +590,8 @@ def figurfelder_final(kstatus: dict[int, dict[int, list[int]]], ep: list[int], r
                 for feld in ff:
                     if feld in ep:
                         if feld-farbe not in ss:
-                            figurfelderliste.remove(feld)
+                            if feld in figurfelderliste:
+                                figurfelderliste.remove(feld)
                     if feld not in ss:
                         if feld in figurfelderliste:
                             figurfelderliste.remove(feld)
@@ -719,11 +736,13 @@ def zug_final(kstatus: dict[int, dict[int, list[int]]], ep: list[int], roch: lis
             if zielfeld-startfeld == 20:
                 kk, epneu = _zug(kstatusneu, epneu, startfeld+30, zielfeld-10)
                 kstatusneu = kk
-                roch.remove(startfeld+30)
+                if startfeld+30 in roch:
+                    roch.remove(startfeld+30)
             elif zielfeld-startfeld == -20:
                 kk, epneu = _zug(kstatusneu, epneu, startfeld-40, zielfeld+10)
                 kstatusneu = kk
-                roch.remove(startfeld-40)
+                if startfeld-40 in roch:
+                    roch.remove(startfeld-40)
     minenfelder, fesselliste, schachliste = _zwischen_info_listen(kstatusneu, farbe)
     x = armeefiguren_final(kstatusneu, epneu, roch, -farbe)
     if len(x) == 0:
@@ -737,7 +756,7 @@ def zug_final(kstatus: dict[int, dict[int, list[int]]], ep: list[int], roch: lis
 
 
 
-def figur_umwandlung(kstatus: dict[int, dict[int, list[int]]], ep: list[int], feld: int, umwandlung_zu: int) -> tuple[dict[int, dict[int, list[int]]], bool, bool, bool]:
+def figur_umwandlung(kstatus: dict[int, dict[int, list[int]]], ep: list[int], roch: list[int], feld: int, umwandlung_zu: int) -> tuple[dict[int, dict[int, list[int]]], bool, bool, bool]:
     """
     Konvertiert die Figur auf dem angegebenen Feld in die angegebene Figur (zulässig 1-6). Kann theoretisch für jede Umwandlung verwendet werden.
     
@@ -772,6 +791,9 @@ def figur_umwandlung(kstatus: dict[int, dict[int, list[int]]], ep: list[int], fe
     - patt:
         :class:`bool`
     """
+    schach = False
+    patt = False
+    schachmatt = False
     farbe, figur = farbe_figur_auf_feld(kstatus, feld)
     kstatus[farbe][figur].remove(feld)
     kstatus[farbe][umwandlung_zu].append(feld)
