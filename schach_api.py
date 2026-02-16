@@ -23,7 +23,7 @@ Verfügbare Funktionen
 - tec_feldfarbe
     Gibt die technische Feldfarbe der angegebenen Feldnummer zurück
 - neues_spiel
-    Herstellen der Vaiablen für ein neues Spiel
+    Herstellen der Variablen für ein neues Spiel
 - fstatus_func
     Herstellen der Statusvariable - Sortierung: Feld > Farbe >> Figur
 - farbe_figur_auf_feld
@@ -31,7 +31,7 @@ Verfügbare Funktionen
 - figurfelder_final
     Kompiliert die allgemein möglichen Figurfelder der Figur auf dem entsprechenden Startfeld mit den Minenfeldern, Fesselungen und Schachsituationen und gibt diese Liste aus.
 - armeefiguren_final:
-    Gibt final für die übergebene Farbe die Liste der bewegungsfähigen Figuren anhand deren Felder aus. Alle Funktionen wurden bercksichtigt darin.
+    Gibt final für die übergebene Farbe die Liste der bewegungsfähigen Figuren anhand deren Felder aus. Alle Funktionen wurden berücksichtigt darin.
 - zug_final
     Führt den angegebenen Zug aus und aktualisiert kstatus, ep, roch und gibt zusätzlich die Umwandlung, Schachangriff, Schachmatt und Unentschieden(Patt) als bool aus.
 - figur_umwandlung
@@ -45,12 +45,12 @@ Anleitung
     :class:`kstatus` ist ein Dictionary das von den Figuren ausgehend, deren besetzte Felder anzeigt, aufgebaut ist, man kann davon immer mit der Funktion :class:`fstatus_func` ein Dictionary herleiten, bei dem das Spielfeld die Referenz ist.
 3. **Bei jedem Zug:**
     Mit der Funktion :class:`armeefiguren_final` erhältst du eine Liste der Figuren anhand ihrer Felder, die ziehen können und dürfen.
-    Mit der Funktion :class:`armeefiguren_final` erhältst du eine Liste, welche Felder die ausgewähle Figur besetzen kann und darf.
+    Mit der Funktion :class:`figurfelder_final` erhältst du eine Liste, welche Felder die ausgewähle Figur besetzen kann und darf.
     Mit der Funktion :class:`zug_final` setzt du den :class:`kstatus` neu anhand der angegebenen Figurbewegung
 4. **Sonderfälle:**
-    :class:`zug_final` gibt additional Informationen aus:
+    :class:`zug_final` gibt zusätzliche Informationen aus:
     4.1. **Umwandlung:**
-        Mit der Funktion :class:`figur_umwandlung` setzt du den :class:`kstatus` neu anhand er angegebenen Figurkonvertierung.
+        Mit der Funktion :class:`figur_umwandlung` setzt du den :class:`kstatus` neu anhand der angegebenen Figurkonvertierung.
     4.2. **Schach:**
         Wenn die gezogene Farbe den gegnerischen König angreift.
     4.3. **Schachmatt**
@@ -98,7 +98,7 @@ Technische Details
 """
 from copy import deepcopy
 
-__version__ = "12-Feb-2026 10:00"
+__version__ = "16-Feb-2026 10:00"
 
 def _strer(x: str | int) -> str:
     return str(x)
@@ -187,7 +187,7 @@ kstatus: dict[int, dict[int, list[int]]] = {10: {1: [12, 22, 32, 42, 52, 62, 72,
 
 def neues_spiel() -> tuple[dict[int, dict[int, list[int]]], list[int], list[int]]:
     """
-    Herstellen der Vaiablen für ein neues Spiel
+    Herstellen der Variablen für ein neues Spiel
     
     Return
     -------
@@ -352,7 +352,7 @@ def _figurfelder(kstatus: dict[int, dict[int, list[int]]], ep: list[int], roch: 
 
 def _zwischen_info_listen(kstatus: dict[int, dict[int, list[int]]], farbe: int) -> tuple[list[int], dict[int, list[int]], list[list[int]]]:
     """
-    Berechnet **für** die angegebene Farbe
+    Berechnet **von** der angegebenen Farbe ausgehend
     - minenfelder, list[int]
     - fesselliste, dict[int, list[int]]
     - schachliste, list[list[int]]
@@ -589,9 +589,18 @@ def figurfelder_final(kstatus: dict[int, dict[int, list[int]]], ep: list[int], r
                 ff = figurfelderliste.copy()
                 for feld in ff:
                     if feld in ep:
-                        if feld-farbe not in ss:
+                        if feld-_bauernweg[farbe][0] not in ss:
                             if feld in figurfelderliste:
                                 figurfelderliste.remove(feld)
+                        else:
+                            simks = deepcopy(kstatus)
+                            simks[farbe][figur].remove(startfeld)
+                            simks[farbe][figur].append(feld)
+                            simks[-farbe][figur].remove(feld-_bauernweg[farbe][0])
+                            _, _, sch = _zwischen_info_listen(simks, -farbe)
+                            if len(sch) != 0:
+                                if feld in figurfelderliste:
+                                    figurfelderliste.remove(feld)
                     if feld not in ss:
                         if feld in figurfelderliste:
                             figurfelderliste.remove(feld)
@@ -717,14 +726,16 @@ def zug_final(kstatus: dict[int, dict[int, list[int]]], ep: list[int], roch: lis
     schach = False
     patt = False
     schachmatt = False
+    oi = ep.copy()
     farbe, figur = farbe_figur_auf_feld(kstatus, startfeld)
     kstatusneu, epneu = _zug(kstatus, ep, startfeld, zielfeld)
     match figur:
         case 1:
-            if zielfeld in ep:
-                kstatusneu[-farbe][1].remove(zielfeld-farbe)
-            elif zielfeld-startfeld == 2*(_bauernweg[farbe][0]):
-                epneu.append(startfeld+_bauernweg[farbe][0])
+            bauweg = _bauernweg[farbe][0]
+            if zielfeld in oi:
+                kstatusneu[-farbe][1].remove(zielfeld-bauweg)
+            elif zielfeld-startfeld == 2*bauweg:
+                epneu.append(startfeld+bauweg)
             elif zielfeld%10 == _bauernweg[farbe][4]:
                 umwandlung = True
         case 4:
@@ -766,7 +777,7 @@ def figur_umwandlung(kstatus: dict[int, dict[int, list[int]]], ep: list[int], ro
         :class:`dict[int, dict[int, list[int]]]`
         Status der Figuren auf dem Schachbrett  
     - ep:
-        :class:`int`
+        :class:`list[int]`
         ep-Liste
     - feld:
         :class:`int`
