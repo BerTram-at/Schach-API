@@ -24,7 +24,7 @@ Deutsche Schach-API für Python
 - **neues_spiel**
     Erstellt die Variablen für ein neues Spiel
 - **fstatus_func**
-    Erstellt die Statusvariable - Sortierung: Farbe > Figur >> Felder
+    Erstellt die Statusvariable - Sortierung: Felder > Farbe >> Figur
 - **farbe_figur_auf_feld**
     Gibt die Armeefarbe und Figur auf dem übermittelten Feld aus
 - **figurfelder_final**
