@@ -286,10 +286,10 @@ def _figurfelder(kstatus: dict[int, dict[int, list[int]]], ep: list[int], roch: 
                 fa = farbe_figur_auf_feld(kstatus, startfeld+weg)[0]
                 if fa == 0:
                     ausgabe.append(startfeld+weg)
-                if startfeld+2*weg in _allefelder:
-                    fa = farbe_figur_auf_feld(kstatus, startfeld+2*weg)[0]
-                    if (fa == 0) and (startfeld%10 == bweg[1]):
-                        ausgabe.append(startfeld+2*weg)
+                    if startfeld+2*weg in _allefelder:
+                        fa = farbe_figur_auf_feld(kstatus, startfeld+2*weg)[0]
+                        if (fa == 0) and (startfeld%10 == bweg[1]):
+                            ausgabe.append(startfeld+2*weg)
             for i in [startfeld+sr, startfeld+sl]:
                 if i in _allefelder:
                     fa = farbe_figur_auf_feld(kstatus, i)[0]
@@ -818,6 +818,7 @@ def figur_umwandlung(kstatus: dict[int, dict[int, list[int]]], ep: list[int], ro
     if len(schachliste) != 0:
         schach = True
     return kstatus, schach, schachmatt, patt
+
 
 
 
