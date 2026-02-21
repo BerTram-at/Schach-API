@@ -6,7 +6,7 @@ Deutsche Schach-API für Python
 ## 📋 Inhaltsverzeichnis
 - [Verfügbare Funktionen](#verfügbare-funktionen)
 - [Anleitung](#anleitung)
-- [Wichtige Hinweise](##%EF%B8%8F-wichtige-hinweise)
+- [Wichtige Hinweise](#%EF%B8%8F-wichtige-hinweise)
 - [Variableninfo](#variableninfo)
 - [Technische Details](#technische-details)
 
