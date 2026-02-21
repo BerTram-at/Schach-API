@@ -1,10 +1,12 @@
 # Schach-API
 Deutsche Schach-API für Python
 
+**Version: 16-Feb-2026 10:00**
+
 ## 📋 Inhaltsverzeichnis
 - [Verfügbare Funktionen](#verfügbare-funktionen)
 - [Anleitung](#anleitung)
-- [Wichtige Hinweise](#wichtige-hinweise)
+- [Wichtige Hinweise](##%EF%B8%8F-wichtige-hinweise)
 - [Variableninfo](#variableninfo)
 - [Technische Details](#technische-details)
 
